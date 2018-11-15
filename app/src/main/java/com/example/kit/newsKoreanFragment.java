@@ -1,6 +1,7 @@
 package com.example.kit;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +19,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.kit.Adapter.NewsAdapter;
+import com.example.kit.Bean.newsBean;
 import com.example.kit.Adapter.NewsAdapter;
 import com.example.kit.Bean.newsBean;
 
@@ -70,7 +73,7 @@ public class newsKoreanFragment extends Fragment {
 
     public void getNews() {
         // Instantiate the RequestQueue.
-        String url ="https://www.googleapis.com/customsearch/v1?key=AIzaSyBb3wLexTbAqMdRB0JJw7ajcPE8555m-o4&cx=006483914068273192856:_qesssnwq6m&q=IoT";
+        String url ="https://www.googleapis.com/customsearch/v1?key=AIzaSyBb3wLexTbAqMdRB0JJw7ajcPE8555m-o4&cx=006483914068273192856:_qesssnwq6m&q=블록체인";
 
 // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -82,37 +85,50 @@ public class newsKoreanFragment extends Fragment {
 
                         try {
 
-                            JSONObject jsonObj =  new JSONObject(response);
+                            JSONObject jsonObj = new JSONObject(response);
 
                             JSONArray arrayArticles = jsonObj.getJSONArray("items"); //뉴스 목록들 받아옴
 
                             //response ->> NewsData Class 분류
                             List<newsBean> news = new ArrayList<>();
 
-                            for(int i = 0, j = arrayArticles.length();  i < j; i++) {
+                            for (int i = 0, j = arrayArticles.length(); i < j; i++) {
                                 JSONObject obj = arrayArticles.getJSONObject(i); //obj는 뉴스 하나의 내용
 
                                 Log.d("News", obj.toString());
 
                                 newsBean newsBean = new newsBean();
                                 newsBean.setTitle(obj.getString("title"));
-
+                                Log.d("ENews", newsBean.getTitle());
                                 JSONObject pageObj = obj.getJSONObject("pagemap");
-
+                                Log.d("ENews", pageObj.toString());
                                 JSONArray arrayMet = pageObj.getJSONArray("metatags");
-
+                                Log.d("ENews", arrayMet.toString());
                                 JSONObject objMet = arrayMet.getJSONObject(0);
-
+                                Log.d("ENews", objMet.toString());
                                 newsBean.setUrlToImage(objMet.getString("og:image"));
-
+                                Log.d("ENews", newsBean.getUrlToImage());
                                 newsBean.setContent(objMet.getString("og:description"));
-
                                 news.add(newsBean);
                             }
 
-
                             // specify an adapter (see also next example)
-                            mAdapter = new NewsAdapter(news, mRecyclerView.getContext());
+                            mAdapter = new NewsAdapter(news, getActivity(), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Object obj = v.getTag();
+                                    if(obj != null){
+                                        int position = (int) obj;
+                                        ((NewsAdapter)mAdapter).getNews(position).getContent();
+                                        Intent intent = new Intent(getActivity(),NewsDetail.class);
+                                        intent.putExtra("content", ((NewsAdapter)mAdapter).getNews(position).getContent());
+                                        startActivity(intent);
+                                    }
+
+
+                                }
+
+                            });
                             mRecyclerView.setAdapter(mAdapter);//정상적으로 처리
 
 

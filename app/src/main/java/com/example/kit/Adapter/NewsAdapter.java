@@ -19,24 +19,31 @@ import java.util.List;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> {
 
     private List<newsBean> mDataset;
+    private static View.OnClickListener onClickListener;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView TextView_title;
         public TextView TextView_content;
         public SimpleDraweeView ImageView_title;
-
+        public View rootView;
         public MyViewHolder(View v) {
             super(v);
             TextView_title = v.findViewById(R.id.TextView_title);
             TextView_content = v.findViewById(R.id.TextView_content);
             ImageView_title = v.findViewById(R.id.ImageView_title);
+            rootView = v;
+
+            v.setClickable(true);
+            v.setEnabled(true);
+            v.setOnClickListener(onClickListener);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public NewsAdapter(List<newsBean> myDataset, Context context) {
+    public NewsAdapter(List<newsBean> myDataset, Context context, View.OnClickListener onClick) {
         mDataset = myDataset;
+        onClickListener = onClick;
         Fresco.initialize(context);
         //Activity context 메모리 누수 발생 가능ㅠㅠ
     }
@@ -68,11 +75,18 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
         Uri uri = Uri.parse(news.getUrlToImage());
 
         holder.ImageView_title.setImageURI(uri);
+
+        //tag
+        holder.rootView.setTag(position);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return mDataset == null ? 0 : mDataset.size();
+    }
+
+    public newsBean getNews(int position) {
+        return mDataset != null ?  mDataset.get(position) : null;
     }
 }

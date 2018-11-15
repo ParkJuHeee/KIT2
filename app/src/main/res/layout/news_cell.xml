@@ -29,11 +29,11 @@
                     android:layout_height="match_parent" />
 
                 <ImageView
-                    android:id="@+id/ImageView_heart"
+                    android:id="@+id/ImageView_bookmark"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_gravity="bottom|left"
-                    android:src="@drawable/bookmark" />
+                    android:src="@drawable/ic_launcher_background" />
 
                 <TextView
                     android:id="@+id/TextView_title"

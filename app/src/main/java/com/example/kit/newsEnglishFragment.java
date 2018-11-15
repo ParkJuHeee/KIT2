@@ -1,6 +1,7 @@
 package com.example.kit;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -70,7 +71,7 @@ public class newsEnglishFragment extends Fragment {
 
     public void getNews() {
         // Instantiate the RequestQueue.
-        String url ="https://www.googleapis.com/customsearch/v1?key=AIzaSyBCkBYSKgRZrNveVLYcHouy-764y0l-XxY&cx=000650060222557471131:igl-qjs8vfc&q=블록체인";
+        String url ="https://newsapi.org/v2/top-headlines?sources=cnn&apiKey=84c04b988ee542a38f94ae96abc50406";
 
 // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -84,7 +85,7 @@ public class newsEnglishFragment extends Fragment {
 
                             JSONObject jsonObj =  new JSONObject(response);
 
-                            JSONArray arrayArticles = jsonObj.getJSONArray("items"); //뉴스 목록들 받아옴
+                            JSONArray arrayArticles = jsonObj.getJSONArray("articles"); //뉴스 목록들 받아옴
 
                             //response ->> NewsData Class 분류
                             List<newsBean> news = new ArrayList<>();
@@ -96,23 +97,30 @@ public class newsEnglishFragment extends Fragment {
 
                                 newsBean newsBean = new newsBean();
                                 newsBean.setTitle(obj.getString("title"));
-                                Log.d("ENews", newsBean.getTitle());
-                                JSONObject pageObj = obj.getJSONObject("pagemap");
-                                Log.d("ENews", pageObj.toString());
-                                JSONArray arrayMet = pageObj.getJSONArray("metatags");
-                                Log.d("ENews", arrayMet.toString());
-                                JSONObject objMet = arrayMet.getJSONObject(0);
-                                Log.d("ENews", objMet.toString());
-                                newsBean.setUrlToImage(objMet.getString("og:image"));
-                                Log.d("ENews",newsBean.getUrlToImage());
-                                newsBean.setContent(objMet.getString("og:description"));
+                                newsBean.setUrlToImage(obj.getString("urlToImage"));
+                                newsBean.setContent(obj.getString("description"));
 
                                 news.add(newsBean);
                             }
 
 
                             // specify an adapter (see also next example)
-                            mAdapter = new NewsAdapter(news, mRecyclerView.getContext());
+                            mAdapter = new NewsAdapter(news, getActivity(), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Object obj = v.getTag();
+                                    if(obj != null){
+                                        int position = (int) obj;
+                                        ((NewsAdapter)mAdapter).getNews(position).getContent();
+                                        Intent intent = new Intent(getActivity(),NewsDetail.class);
+                                        intent.putExtra("content", ((NewsAdapter)mAdapter).getNews(position).getContent());
+                                        startActivity(intent);
+                                    }
+
+
+                                }
+
+                            });
                             mRecyclerView.setAdapter(mAdapter);//정상적으로 처리
 
 
